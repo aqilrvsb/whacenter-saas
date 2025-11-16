@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { supabase } from '@/lib/supabase'
 import { hashPassword, signToken } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
@@ -13,9 +13,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    })
+    // Check if user exists
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .single()
 
     if (existingUser) {
       return NextResponse.json(
@@ -26,13 +29,20 @@ export async function POST(request: NextRequest) {
 
     const hashedPassword = await hashPassword(password)
 
-    const user = await prisma.user.create({
-      data: {
+    // Create user
+    const { data: user, error } = await supabase
+      .from('users')
+      .insert([{
         email,
         password: hashedPassword,
         name
-      }
-    })
+      }])
+      .select()
+      .single()
+
+    if (error) {
+      throw error
+    }
 
     const token = signToken({
       userId: user.id,
