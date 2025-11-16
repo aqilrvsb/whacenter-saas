@@ -1,12 +1,13 @@
-// Prisma schema for Whacenter SaaS
+// Prisma schema for Whacenter SaaS - PostgreSQL (Supabase)
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -28,9 +29,9 @@ model Device {
   id               String   @id @default(uuid())
   userId           String
   name             String
-  whacenterDeviceId String  @unique // Whacenter device ID
-  status           String   @default("disconnected") // connected, disconnected, pairing
-  qrCode           String?  @db.Text
+  whacenterDeviceId String  @unique
+  status           String   @default("disconnected")
+  qrCode           String?
   minDelaySeconds  Int      @default(3)
   maxDelaySeconds  Int      @default(7)
   createdAt        DateTime @default(now())
@@ -49,8 +50,8 @@ model Campaign {
   userId      String
   deviceId    String
   title       String
-  message     String   @db.Text
-  status      String   @default("draft") // draft, active, paused, completed
+  message     String
+  status      String   @default("draft")
   totalLeads  Int      @default(0)
   sentCount   Int      @default(0)
   failedCount Int      @default(0)
@@ -71,8 +72,8 @@ model Sequence {
   id          String   @id @default(uuid())
   userId      String
   name        String
-  description String?  @db.Text
-  status      String   @default("draft") // draft, active, paused
+  description String?
+  status      String   @default("draft")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -88,8 +89,8 @@ model SequenceStep {
   id         String   @id @default(uuid())
   sequenceId String
   stepNumber Int
-  message    String   @db.Text
-  delayHours Int      @default(24) // Delay before sending this step
+  message    String
+  delayHours Int      @default(24)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -104,7 +105,7 @@ model SequenceSubscriber {
   sequenceId    String
   phone         String
   currentStep   Int      @default(0)
-  status        String   @default("active") // active, paused, completed, unsubscribed
+  status        String   @default("active")
   lastMessageAt DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -121,9 +122,9 @@ model Message {
   deviceId   String
   campaignId String?
   phone      String
-  message    String   @db.Text
-  status     String   @default("pending") // pending, sent, failed
-  error      String?  @db.Text
+  message    String
+  status     String   @default("pending")
+  error      String?
   sentAt     DateTime?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -142,7 +143,7 @@ model Lead {
   campaignId String
   phone      String
   name       String?
-  data       String?  @db.Text // JSON data for custom fields
+  data       String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
