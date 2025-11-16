@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --whatsapp-dark: #075E54;
+  --whatsapp-light: #128C7E;
+  --whatsapp-green: #25D366;
+}
+
+body {
+  @apply bg-gray-50;
+}
